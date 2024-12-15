@@ -46,25 +46,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         if (isset($_GET['action']) && $_GET['action'] === 'get_mahasiswa') {
             $query = "SELECT DISTINCT m.nim, m.nama_lengkap 
                     FROM mahasiswa m
-                    LEFT JOIN (
-                        -- Hitung jumlah UKM yang diikuti per mahasiswa
-                        SELECT nim, COUNT(DISTINCT id_ukm) as ukm_count 
-                        FROM keanggotaan_ukm 
-                        WHERE tanggal_berakhir IS NULL 
-                            OR tanggal_berakhir > CURRENT_DATE
-                        GROUP BY nim
-                    ) k ON m.nim = k.nim
-                    WHERE (k.ukm_count IS NULL OR k.ukm_count < 3) -- Mahasiswa yang belum ikut UKM atau ikut kurang dari 3
-                    AND m.nim NOT IN (
-                        -- Exclude mahasiswa yang sudah terdaftar di UKM ini
-                        SELECT nim FROM keanggotaan_ukm 
-                        WHERE id_ukm = ? 
-                        AND (tanggal_berakhir IS NULL OR tanggal_berakhir > CURRENT_DATE)
-                    )
+                    INNER JOIN pendaftaran_ukm p ON m.nim = p.nim
+                    LEFT JOIN keanggotaan_ukm k ON m.nim = k.nim AND k.id_ukm = ?
+                    WHERE p.id_ukm = ? 
+                    AND p.status = 'acc_tahap3'
+                    AND k.id_keanggotaan IS NULL
                     ORDER BY m.nama_lengkap";
                     
             $stmt = $pdo->prepare($query);
-            $stmt->execute([$id_ukm]);
+            $stmt->execute([$id_ukm, $id_ukm]);
             $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             jsonResponse('success', 'Data mahasiswa berhasil diambil', $data);
@@ -119,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                  JOIN periode_kepengurusan p ON k.id_periode = p.id_periode
                  JOIN program_studi ps ON m.id_program_studi = ps.id_program_studi
                  WHERE $whereClause
-                 ORDER BY k.tanggal_bergabung DESC";
+                 ORDER BY p.tahun_mulai DESC, m.nama_lengkap ASC";
 
         $stmt = $pdo->prepare($query);
         $stmt->execute($params);
@@ -137,30 +127,26 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $id_keanggotaan = isset($_POST['id_keanggotaan']) ? $_POST['id_keanggotaan'] : null;
         
-        // Jika update, nim tidak perlu diambil dari POST
         if ($id_keanggotaan) {
             $status = $_POST['status'];
             $id_periode = $_POST['id_periode'];
-            $tanggal_bergabung = $_POST['tanggal_bergabung'];
             
             // Update
             $query = "UPDATE keanggotaan_ukm 
-                     SET status = ?, id_periode = ?, tanggal_bergabung = ?
+                     SET status = ?, id_periode = ?
                      WHERE id_keanggotaan = ? AND id_ukm = ?";
-            $params = [$status, $id_periode, $tanggal_bergabung, $id_keanggotaan, $id_ukm];
+            $params = [$status, $id_periode, $id_keanggotaan, $id_ukm];
             $message = 'Data anggota berhasil diupdate';
         } else {
-            // Untuk insert baru, ambil nim dari POST
             $nim = $_POST['nim'];
             $status = $_POST['status'];
             $id_periode = $_POST['id_periode'];
-            $tanggal_bergabung = $_POST['tanggal_bergabung'];
             
             // Insert
             $query = "INSERT INTO keanggotaan_ukm 
-                     (nim, id_ukm, status, id_periode, tanggal_bergabung)
-                     VALUES (?, ?, ?, ?, ?)";
-            $params = [$nim, $id_ukm, $status, $id_periode, $tanggal_bergabung];
+                     (nim, id_ukm, status, id_periode)
+                     VALUES (?, ?, ?, ?)";
+            $params = [$nim, $id_ukm, $status, $id_periode];
             $message = 'Anggota baru berhasil ditambahkan';
         }
         
@@ -179,25 +165,45 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
     try {
         $id_keanggotaan = $_GET['id_keanggotaan'];
 
-        // Check if member exists
-        $query = "SELECT COUNT(*) FROM keanggotaan_ukm 
-                 WHERE id_keanggotaan = ? AND id_ukm = ?";
+        // Start transaction
+        $pdo->beginTransaction();
+
+        // Check if member exists and get their status
+        $query = "SELECT k.status, k.nim, k.id_ukm 
+                 FROM keanggotaan_ukm k
+                 WHERE k.id_keanggotaan = ? AND k.id_ukm = ?";
         $stmt = $pdo->prepare($query);
         $stmt->execute([$id_keanggotaan, $id_ukm]);
-        if ($stmt->fetchColumn() == 0) {
+        $member = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$member) {
+            $pdo->rollBack();
             jsonResponse('error', 'Data tidak ditemukan');
         }
 
-        // Delete member
+        // If member is "pengurus", delete from struktur_organisasi first
+        if ($member['status'] === 'pengurus') {
+            $query = "DELETE FROM struktur_organisasi_ukm 
+                     WHERE nim = ? AND id_ukm = ?";
+            $stmt = $pdo->prepare($query);
+            $stmt->execute([$member['nim'], $member['id_ukm']]);
+        }
+
+        // Delete from keanggotaan_ukm
         $query = "DELETE FROM keanggotaan_ukm 
                  WHERE id_keanggotaan = ? AND id_ukm = ?";
         $stmt = $pdo->prepare($query);
         $stmt->execute([$id_keanggotaan, $id_ukm]);
 
+        // Commit transaction
+        $pdo->commit();
+
         jsonResponse('success', 'Data anggota berhasil dihapus');
 
     } catch (Exception $e) {
+        // Rollback transaction on error
+        $pdo->rollBack();
         jsonResponse('error', $e->getMessage());
     }
 }
-?>
+?>  

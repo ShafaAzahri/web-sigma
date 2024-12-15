@@ -1,92 +1,72 @@
-    <!DOCTYPE html>
-    <html lang="id">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Formulir Pendaftaran</title>
-        <!-- Import Merriweather Sans font -->
-        <link href="https://fonts.googleapis.com/css2?family=Merriweather+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="/frontend/src/styles/user/form_daftar1.css">
-    </head>
-    <body>
-
-        <div id="navbar"></div>
-
-        <div class="progress-bar">
-            <div class="step">
-                <span class="step-label">TAHAP 1</span>
-            </div>
-            <div class="step">
-                <span class="step-label">TAHAP 2</span>
-            </div>
-            <div class="step">
-                <span class="step-label">TAHAP 3</span>
-            </div>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulir Pendaftaran</title>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/frontend/src/styles/user/form_daftar1.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+</head>
+<body>
+    <div id="navbar"></div>
+    <div class="progress-bar">
+        <div class="step active">
+            <span class="step-label">TAHAP 1</span>
         </div>
-
-        <div class="form-container">
-            <h1>Formulir Pendaftaran Tahap Pertama</h1>
-            <form id="registrationForm">
-                <div class="form-row">
-                    <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Nama lengkap" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="text" class="form-control" placeholder="NIM" required>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <select class="form-control" required>
-                        <option value="" disabled selected>Jenis kelamin</option>
-                        <option value="L">Laki-laki</option>
-                        <option value="P">Perempuan</option>
-                    </select>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <select class="form-control" required>
-                            <option value="" disabled selected>Jurusan</option>
-                            <option value="ti">Teknik Informatika</option>
-                            <option value="si">Sistem Informasi</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <select class="form-control" required>
-                            <option value="" disabled selected>Program Studi</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <input type="text" class="form-control" placeholder="Kelas" required>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Alamat" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="tel" class="form-control" placeholder="No whatsapp" required>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <input type="text" class="form-control" placeholder="Motivasi" required>
-                </div>
-
-                <div class="button-group">
-                    <button type="button">Edit</button>
-                    <a href="/frontend/src/pages/user/form_daftar2.html">
-                        <button type="button">Submit</button>
-                    </a>                  
-                </div>
-            </form>
+        <div class="step">
+            <span class="step-label">TAHAP 2</span>
         </div>
-
-        <script src="/frontend/src/utils/navbar/navbar.js"></script>
-        <script src="/frontend/src/pages/user/js/auth.js"></script>
-
-    </body>
-    </html>
+        <div class="step">
+            <span class="step-label">TAHAP 3</span>
+        </div>
+    </div>
+    <div class="form-container">
+        <h1>Formulir Pendaftaran Tahap Pertama</h1>
+        <form id="registrationForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <input type="text" id="nama_lengkap" class="form-control" placeholder="Nama lengkap" required disabled>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="nim" class="form-control" placeholder="NIM" required disabled>
+                </div>
+            </div>
+            <div class="form-group">
+                <select id="jenis_kelamin" class="form-control" required disabled>
+                    <option value="" disabled>Jenis kelamin</option>
+                    <option value="Laki-laki">Laki-laki</option>
+                    <option value="Perempuan">Perempuan</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <input type="text" id="program_studi" class="form-control" placeholder="Program Studi" required disabled>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="kelas" class="form-control" placeholder="Kelas" required disabled>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <input type="text" id="alamat" class="form-control" placeholder="Alamat" required disabled>
+                </div>
+                <div class="form-group">
+                    <input type="tel" id="no_whatsapp" class="form-control" placeholder="No whatsapp" required disabled>
+                </div>
+            </div>
+            <div class="form-group">
+                <textarea name="motivasi" id="motivasi" class="form-control" placeholder="Motivasi" required rows="5"></textarea>
+            </div>
+            <div class="button-group">
+                <button type="submit">Submit</button>
+            </div>
+        </form>
+    </div>
+    <script src="/frontend/src/utils/navbar/navbar.js"></script>
+    <script src="/frontend/src/pages/user/js/auth.js"></script>
+    <script src="/frontend/src/pages/user/js/form_daftar1.js"></script>
+    <script src="/frontend/src/pages/user/js/pendaftaran.js"></script>
+</body>
+</html>

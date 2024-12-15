@@ -15,18 +15,19 @@ if (!isset($_SESSION['username'])) {
 try {
     $username = $_SESSION['username'];
     
-    // Query untuk mendapatkan UKM yang TIDAK diikuti oleh mahasiswa
+    // Query untuk mendapatkan UKM yang TIDAK diikuti oleh mahasiswa pada periode aktif
     $query = "
-        SELECT u.id_ukm, u.nama_ukm, u.deskripsi, u.logo_path,
+        SELECT DISTINCT u.id_ukm, u.nama_ukm, u.deskripsi, u.logo_path,
                pk.tahun_mulai, pk.tahun_selesai
         FROM ukm u
         CROSS JOIN periode_kepengurusan pk
         WHERE pk.status = 'aktif'
-        AND u.id_ukm NOT IN (
-            SELECT ku.id_ukm 
-            FROM keanggotaan_ukm ku 
-            INNER JOIN user_login ul ON ku.nim = ul.username
-            WHERE ul.username = :username
+        AND NOT EXISTS (
+            SELECT 1
+            FROM keanggotaan_ukm ku
+            WHERE ku.id_ukm = u.id_ukm
+            AND ku.nim = :username
+            AND ku.id_periode = pk.id_periode
         )
         ORDER BY u.nama_ukm ASC
     ";

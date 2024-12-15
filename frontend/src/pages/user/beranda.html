@@ -9,9 +9,28 @@
     <link rel="icon" href="/frontend/public/assets/logo-sigma.png" type="image/png">
 </head>
 <body>
-    <div id="navbar"></div>
-    
-    <div class="content-wrapper">
+    <nav class="navbar">
+        <div class="nav-brand">
+            <img src="/frontend/public/assets/sigma_nav.png" class="nav-logo">
+        </div>
+        <div class="hamburger">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="/frontend/src/pages/user/beranda.html" class="nav-link">Beranda</a>
+            </li>
+            <li class="nav-item">
+                <a href="/frontend/src/pages/user/UKM.html" class="nav-link">UKM</a>
+            </li>
+            <li class="nav-item">
+                <a href="/frontend/src/pages/user/profile.html" class="nav-link">Profil</a>
+            </li>
+        </ul>
+    </nav>
+
         <!-- Hero Section -->
         <section class="gambar-utama">
             <img src="/frontend/public/assets/13.png" alt="Selamat Datang" class="hero-image">
@@ -22,7 +41,7 @@
             </div>
         </section>
 
-        <!-- Event Section -->
+               <!-- Event Section -->
         <section class="event-section">
             <div class="event-title">
                 <h2>EVENT</h2>
@@ -100,9 +119,8 @@
                 <button class="carousel-button next">&gt;</button>
             </div>
         </div>
-    </div>
+
     <footer id="footer-container"></footer>
-    <script src="/frontend/src/utils/navbar/navbar.js"></script>
     <script src="/frontend/src/utils/footer/footer.js"></script>
     <script src="/frontend/src/pages/user/js/event-old.js"></script>
     <script src="/frontend/src/pages/user/js/event.js"></script>

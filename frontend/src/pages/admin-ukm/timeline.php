@@ -67,6 +67,7 @@ if (!isset($_SESSION['id_ukm'])) {
                                                 <th>Tanggal Kegiatan</th>
                                                 <th>Waktu</th>
                                                 <th>Status</th>
+                                                <th>Jenis</th>
                                                 <th>Panitia</th>
                                                 <th>Rapat</th>
                                                 <th>Foto/Banner</th>
@@ -84,6 +85,7 @@ if (!isset($_SESSION['id_ukm'])) {
                 </div>
             </section>
         </div>
+
 
         <!-- Modal Add/Edit Timeline -->
         <div class="modal fade" id="modal-form">
@@ -105,6 +107,14 @@ if (!isset($_SESSION['id_ukm'])) {
                             <div class="form-group">
                                 <label for="deskripsi">Deskripsi</label>
                                 <textarea class="form-control" id="deskripsi" name="deskripsi" rows="3" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Jenis Kegiatan</label>
+                                <select class="form-control" id="jenis" name="jenis" required>
+                                    <option value="">Pilih Jenis Kegiatan</option>
+                                    <option value="proker">Program Kerja</option>
+                                    <option value="agenda">Agenda</option>
+                                </select>
                             </div>
                             <div class="form-group">
                                 <label for="tanggal_kegiatan">Tanggal Kegiatan</label>
@@ -328,5 +338,10 @@ if (!isset($_SESSION['id_ukm'])) {
     <script src="/frontend/src/pages/admin-ukm/js/timeline.js"></script>
     <script src="/frontend/src/pages/admin-ukm/js/rapat.js"></script>
     <script src="/frontend/src/pages/admin-ukm/js/panitia.js"></script>
+
+    <script> // Global logout function for sidebar
+    window.logout = function() {
+        SidebarManager.logout();
+    };</script>
 </body>
 </html>

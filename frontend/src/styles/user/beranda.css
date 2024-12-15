@@ -8,25 +8,183 @@
 }
 
 body {
-  background-color: #f5f5f5;
+  background-color: #ffffff;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
 }
 
-/* Content Wrapper */
-.content-wrapper {
-  margin-top: 95px;
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.55rem 2rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  transition: background-color 0.3s ease;
+  background-color: transparent;
+  color: white;
 }
+
+.navbar.scrolled {
+  background-color: #fdf9e3;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.navbar.scrolled .nav-link {
+  color: #161D6F; /* Revert to original color when scrolled */
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+}
+
+.nav-logo {
+  height: 60px;
+  width: auto;
+}
+
+.nav-menu {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 2.5rem;
+}
+
+.nav-item {
+  margin: 0;
+}
+
+.nav-link {
+  color: #161D6F;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 16px;
+  transition: color 0.3s ease;
+  color: white;
+}
+
+.nav-link:hover {
+  color: #007bff;
+}
+
+.hamburger {
+  display: none;
+  cursor: pointer;
+  z-index: 2000; /* Memastikan hamburger berada di atas elemen lainnya */
+}
+
+.bar {
+  display: block;
+  width: 30px;
+  height: 4px;
+  margin: 5px auto;
+  transition: all 0.3s ease;
+  background-color: #333;
+}
+
+/* Responsif untuk ukuran layar desktop */
+@media screen and (max-width: 1024px) {
+  .nav-link {
+      font-size: 15px;
+  }
+}
+
+/* Responsif untuk ukuran layar mobile */
+@media screen and (max-width: 768px) {
+  .hamburger {
+      display: block;
+  }
+  
+  .hamburger.active .bar:nth-child(2) {
+      opacity: 0;
+  }
+  
+  .hamburger.active .bar:nth-child(1) {
+      transform: translateY(10px) rotate(45deg);
+  }
+  
+  .hamburger.active .bar:nth-child(3) {
+      transform: translateY(-10px) rotate(-45deg);
+  }
+  
+  .nav-menu {
+      position: fixed;
+      left: -100%;
+      top: 0;
+      height: 100%;
+      width: 100%;
+      flex-direction: column;
+      background-color: #fff;
+      text-align: left;
+      padding-top: 50px;
+      transition: left 0.3s ease;
+  }
+  
+  .nav-item {
+      margin: 1.5rem;
+  }
+  
+  .nav-menu.active {
+      left: 0;
+  }
+
+  .nav-link {
+      font-size: 20px;
+      color: #00274D;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 0.75rem;
+      display: block;
+  }
+
+  .bar {
+      width: 25px; /* Dikurangi dari 30px menjadi 25px */
+      height: 3px; /* Dikurangi dari 4px menjadi 3px */
+      margin: 4px auto; /* Dikurangi dari 5px menjadi 4px */
+  }
+}
+
+/* Responsif untuk layar lebih kecil */
+@media screen and (max-width: 480px) {
+  .nav-link {
+      font-size: 20px;
+  }
+}
+
+/* Cover Image styles */
+.banner-container {
+  margin-top: 90px;
+}
+
+/* Styling untuk elemen body dan menu saat dalam mode mobile */
+body.mobile-menu-active {
+  overflow: hidden;
+}
+
+.content-wrapper {
+  margin-top: 70px; /* Sesuaikan dengan tinggi navbar baru */
+}
+
+
 
 /* Gambar Utama Section */
 .gambar-utama {
   position: relative;
   width: 100%;
-  height: 720px;
-  margin-top: 20px;
+  height: 100vh;
+  overflow: hidden;
+  margin-bottom: 0;
 }
 
 .hero-image {
   width: 100%;
-  height: 720px;
+  height: 100%;
   object-fit: cover;
 }
 
@@ -65,42 +223,73 @@ body {
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-/* Event Section Styles */
 /* Event Section */
 .event-section {
-  background-color: #0B2447;
+  background: linear-gradient(135deg, #0B2447, #19376D, #2E4A82);
   color: white;
   padding: 4rem 2rem;
   width: 100%; 
+  margin-top: 0;
+}
+.event-title {
+  position: relative;
+  opacity: 0;
+  transform: translateX(-100px);
+  transition: opacity 1s ease-out, transform 1s ease-out;
+  margin-bottom: 3rem;
 }
 
-.event-title {
-  display: flex;
-  align-items: center;
-  margin-bottom: 5rem;
+.event-title.slide-in {
+  opacity: 1;
+  transform: translateX(0);
+} 
+
+.event-title::before,
+.event-title::after {
+  content: "";
+  position: absolute;
+  left: 2rem;
+  width: 300px;
+  height: 76px;
+  background-color: #1e5282;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 15px) 100%, 0 100%);
+  border-radius: 8px 8px 0 8px;
+}
+
+.event-title::before {
+  top: 0;
+  z-index: 2;
+}
+
+.event-title::after {
+  top: 6px;
+  left: calc(2rem + 3px);
+  background-color: #68b0ec;
+  z-index: 1;
+  filter: blur(4px);
 }
 
 .event-title h2 {
   position: relative;
   font-size: 3rem;
   font-weight: bold;
-  padding: 0.5rem 1rem;
-  background-color: #1e5282; /* Background warna untuk teks "EVENT" */
+  padding: 0.5rem 2rem;
   color: #ffffff;
-  z-index: 1;
-  width: 100%; /* Memastikan background mencakup seluruh lebar layar */
-}
+  z-index: 2;
+  width: fit-content;
+  margin: 0 0 1rem 4rem;
+} 
 
 .event-title h2::before {
   content: "";
   position: absolute;
   top: 50%;
-  left: -2rem;
-  width: 50px;
-  height: 2px;
-  background: #4A90E2; /* Warna garis */
+  left: -6rem;
+  width: 110px;
+  height: 8px;
+  background: linear-gradient(to right, transparent, #4A90E2);
   transform: translateY(-50%);
-}
+ }
 
 
 .event-container {
@@ -108,12 +297,32 @@ body {
   margin: 0 auto;
 }
 
-
 .event-card {
   display: flex;
   gap: 2rem;
   margin-bottom: 4rem;
   align-items: center;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.event-card.fade-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Add delay for alternating cards */
+.event-card:nth-child(2) {
+  transition-delay: 0.35s;
+}
+
+.event-card:nth-child(3) {
+  transition-delay: 0.35s;
+}
+
+.event-card:nth-child(4) {
+  transition-delay: 0.35s;
 }
 
 .event-card.reverse {
@@ -140,7 +349,24 @@ body {
   font-size: 1.8rem;
   margin-bottom: 1rem;
   font-weight: bold;
+  position: relative;
+  padding-bottom: 15px;
+  display: table; /* Changed from inline-block */
 }
+
+
+.event-info h3::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: fit-content;
+  height: 3px;
+  background: linear-gradient(to right, #ffffff, transparent);
+  width: auto;
+  right: 0;
+ }
+
 
 .highlight {
   color: #3B82F6;
@@ -189,9 +415,9 @@ body {
 
 /* Gallery Section */
 .gallery-section {
-  margin-top: 40px;
+  margin-top: 4px;
   padding: 10px;
-  background-color: #f5f5f5;
+  background-color: #f1efe9;
   height: 450px;
 }
 
@@ -201,151 +427,6 @@ body {
   color: #0a2647;
   font-size: 24px;
   font-weight: bold;
-}
-
-.carousel-container {
-  position: relative;
-  width: 95%;
-  max-width: 1200px;
-  height: 400px;
-  margin: 0 auto;
-  perspective: 1200px;
-  transform-style: preserve-3d;
-  overflow: visible;
-}
-
-.carousel-track {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  transform-style: preserve-3d;
-  transition: transform 0.5s ease;
-}
-
-.carousel-slide {
-  position: absolute;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 35%;
-  height: 70%;
-  transition: all 0.3s ease;
-  opacity: 0.7;
-  pointer-events: none;
-  transform-style: preserve-3d;
-  border-radius: 40px;
-  overflow: visible;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-}
-
-/* Untuk browser Webkit (Chrome, Safari, Edge) */
-.carousel-slide .slide-description::-webkit-scrollbar {
-  display: none; /* Menyembunyikan scrollbar */
-}
-
-/* Untuk Firefox */
-.carousel-slide .slide-description {
-  scrollbar-width: none; /* Menyembunyikan scrollbar */
-}
-
-.carousel-slide img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: cover;
-  border-radius: 40px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.carousel-slide .slide-description {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 30px;
-  background: linear-gradient(to top, rgba(0, 32, 96, 0.95), rgba(0, 32, 96, 0.7) 60%, rgba(0, 32, 96, 0));
-  color: white;
-  border-bottom-left-radius: 40px;
-  border-bottom-right-radius: 40px;
-  transform: translateZ(0);
-  overflow-y: auto; /* Allow vertical scrolling */
-  -ms-overflow-style: none; /* Internet Explorer and Edge */
-  scrollbar-width: none; /* Firefox */
-}
-
-.slide-description h3 {
-  font-size: 1em;
-  margin-bottom: 10px;
-  font-weight: 600;
-}
-
-.slide-description p {
-  font-size: 0.8em;
-  opacity: 0.9;
-  margin: 0;
-  line-height: 1.4;
-}
-
-.carousel-slide.active {
-  z-index: 2;
-  opacity: 1;
-  transform: translateX(0) scale(1.3);
-  pointer-events: auto;
-}
-
-.carousel-slide.active .slide-description {
-  padding: 35px;
-  max-height: 40%;
-  overflow-y: auto;
-}
-
-.carousel-slide.prev {
-  transform: translateX(-100%) translateZ(0) rotateY(10deg);
-  opacity: 0.7;
-  z-index: 1;
-}
-
-.carousel-slide.next {
-  transform: translateX(100%) translateZ(0) rotateY(-10deg);
-  opacity: 0.7;
-  z-index: 1;
-}
-
-.carousel-button {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background: rgba(10, 38, 71, 0.5);
-  color: white;
-  border: none;
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 3;
-  transition: all 0.3s ease;
-}
-
-.carousel-button:hover {
-  background: rgba(10, 38, 71, 0.8);
-  transform: translateY(-50%) scale(1.1);
-}
-
-.carousel-button.prev {
-  left: calc(20% + 10px);
-}
-
-.carousel-button.next {
-  right: calc(20% + 10px);
-}
-
-#footer-container {
-  margin-top: 50px;
 }
 
 .no-events {
@@ -385,20 +466,37 @@ body {
 }
 
 @media (max-width: 768px) {
+  .event-title::before {
+    width: 250px;
+    height: 70px;
+  }
+  
+  .event-title h2 {
+    font-size: 2.5rem;
+  }
+
+
   .content-wrapper {
     margin-top: 60px;
   }
+    .event-title h2::after {
+      bottom: -8px; /* Sesuaikan jarak untuk layar kecil */
+    }
+  
 
   .welcome-text h1 {
     font-size: 2em;
   }
 
   .event-card {
-    flex-direction: column;
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 4rem;
+    align-items: center;
   }
-
+  
   .event-card.reverse {
-    flex-direction: column;
+    flex-direction: row-reverse;
   }
 
   .event-info, .event-image {
@@ -411,6 +509,7 @@ body {
 
   .event-info h3 {
     font-size: 1.5rem;
+    display: inline-block;
   }
 
   .tags {
@@ -453,6 +552,15 @@ body {
 }
 
 @media (max-width: 480px) {
+  .event-title::before {
+    width: 200px;
+    height: 60px;
+  }
+  
+  .event-title h2 {
+    font-size: 2rem;
+  }
+
   .welcome-text h1 {
     font-size: 1.5em;
   }

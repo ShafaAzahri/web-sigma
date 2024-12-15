@@ -108,6 +108,29 @@ body {
     height: auto;
 }
 
+.btn-next-stage {
+    margin-top: 20px;
+    background-color: #1a237e; /* Warna biru */
+    color: #ffffff; /* Teks putih */
+    border: none;
+    border-radius: 8px; /* Sudut melengkung */
+    padding: 12px 20px; /* Spasi dalam */
+    font-size: 16px; /* Ukuran font */
+    font-weight: bold; /* Teks tebal */
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Animasi */
+}
+
+.btn-next-stage:hover {
+    background-color: #0056b3; /* Warna biru lebih gelap saat hover */
+    transform: scale(1.05); /* Efek zoom saat hover */
+}
+
+.btn-next-stage:active {
+    background-color: #003d80; /* Warna lebih gelap saat ditekan */
+    transform: scale(0.95); /* Efek kecil saat ditekan */
+}
+
 @media (max-width: 600px) {
     .success-container {
         flex-direction: column;

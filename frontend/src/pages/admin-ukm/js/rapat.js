@@ -61,7 +61,7 @@ $(document).ready(function() {
                     <td>${formatDate(item.tanggal)}</td>
                     <td>
                         ${item.notulensi_path ? 
-                            `<a href="/frontend/public/assets/${item.notulensi_path}" target="_blank" 
+                            `<a href="/frontend/public/assets/notulensi/${item.notulensi_path}" target="_blank" 
                                 class="btn btn-info btn-sm">
                                 <i class="fas fa-file-pdf"></i> Lihat
                             </a>` : 
@@ -154,7 +154,7 @@ $(document).ready(function() {
                         data.dokumentasi.forEach(foto => {
                             previewContainer.append(`
                                 <div class="col-md-3 mb-2">
-                                    <img src="/frontend/public/assets/${foto.foto_path}" 
+                                    <img src="/frontend/public/assets/dokumentasi/${foto.foto_path}" 
                                          class="img-thumbnail" 
                                          style="height: 100px; object-fit: cover;">
                                 </div>
@@ -234,7 +234,7 @@ $(document).ready(function() {
                     response.data.dokumentasi.forEach((foto, index) => {
                         carousel.append(`
                             <div class="carousel-item ${index === 0 ? 'active' : ''}">
-                                <img src="/frontend/public/assets/${foto.foto_path}" 
+                                <img src="/frontend/public/assets/dokumentasi/${foto.foto_path}" 
                                      class="d-block w-100" 
                                      style="height: 400px; object-fit: contain;">
                             </div>

@@ -15,6 +15,12 @@ switch ($action) {
     case 'get_ukm_members':
         getUkmMembers();
         break;
+    case 'get_yearly_members':
+        getYearlyMembers();
+        break;
+    case 'get_yearly_events':
+        getYearlyEvents();
+        break;
     default:
         echo json_encode(['status' => 'error', 'message' => 'Action tidak ditemukan']);
         break;
@@ -27,39 +33,90 @@ function getStats() {
         // Debug: Log query execution
         error_log("Executing getStats");
 
-        // Get total mahasiswa
         $query_mahasiswa = "SELECT COUNT(*) as total FROM mahasiswa";
         $stmt = $pdo->query($query_mahasiswa);
         $total_mahasiswa = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
-        error_log("Total mahasiswa: " . $total_mahasiswa);
 
-        // Get total UKM
         $query_ukm = "SELECT COUNT(*) as total FROM ukm";
         $stmt = $pdo->query($query_ukm);
         $total_ukm = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
-        error_log("Total UKM: " . $total_ukm);
 
-        // Get users by role
         $query_users = "SELECT role, COUNT(*) as total FROM user_login GROUP BY role";
         $stmt = $pdo->query($query_users);
         $users_by_role = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        error_log("Users by role: " . print_r($users_by_role, true));
 
-        // Response
-        $response = [
+        echo json_encode([
             'status' => 'success',
             'data' => [
                 'total_mahasiswa' => $total_mahasiswa,
                 'total_ukm' => $total_ukm,
                 'users_by_role' => $users_by_role
             ]
-        ];
-        
-        error_log("Response: " . print_r($response, true));
-        echo json_encode($response);
-        
+        ]);
     } catch (PDOException $e) {
-        error_log("Error in getStats: " . $e->getMessage());
+        echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+    }
+}
+
+function getYearlyMembers() {
+    global $pdo;
+    try {
+        // Menggunakan JOIN dengan periode_kepengurusan untuk mendapatkan data keanggotaan
+        $query = "SELECT 
+                    p.tahun_mulai as tahun,
+                    COUNT(DISTINCT k.nim) as jumlah_anggota
+                FROM periode_kepengurusan p
+                LEFT JOIN keanggotaan_ukm k ON p.id_periode = k.id_periode
+                WHERE p.tahun_mulai IS NOT NULL
+                GROUP BY p.tahun_mulai
+                ORDER BY p.tahun_mulai ASC";
+
+        $stmt = $pdo->query($query);
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Transform data to show the year properly
+        $data = array_map(function($item) {
+            return [
+                'tahun' => date('Y', strtotime($item['tahun'])),
+                'jumlah_anggota' => (int)$item['jumlah_anggota']
+            ];
+        }, $result);
+
+        // Log untuk debugging
+        error_log('Yearly Members Query: ' . $query);
+        error_log('Yearly Members Data: ' . print_r($data, true));
+
+        echo json_encode([
+            'status' => 'success',
+            'data' => $data
+        ]);
+    } catch (PDOException $e) {
+        error_log('Error in getYearlyMembers: ' . $e->getMessage());
+        echo json_encode([
+            'status' => 'error',
+            'message' => $e->getMessage()
+        ]);
+    }
+}
+
+function getYearlyEvents() {
+    global $pdo;
+    try {
+        $query = "SELECT 
+                    YEAR(tanggal_kegiatan) as tahun,
+                    COUNT(*) as jumlah_event
+                 FROM timeline_ukm
+                 GROUP BY YEAR(tanggal_kegiatan)
+                 ORDER BY tahun";
+        
+        $stmt = $pdo->query($query);
+        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        echo json_encode([
+            'status' => 'success',
+            'data' => $data
+        ]);
+    } catch (PDOException $e) {
         echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
     }
 }

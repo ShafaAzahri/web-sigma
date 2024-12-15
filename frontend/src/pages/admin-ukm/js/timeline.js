@@ -26,6 +26,30 @@ $(document).ready(function () {
         const tbody = $('#table-timeline tbody');
         tbody.empty();
         $.each(data, function(index, item) {
+            // Helper function untuk menentukan warna badge berdasarkan jenis
+            const getBadgeClass = (jenis) => {
+                switch(jenis) {
+                    case 'proker':
+                        return 'badge-primary';
+                    case 'agenda':
+                        return 'badge-warning';
+                    default:
+                        return 'badge-secondary';
+                }
+            };
+    
+            // Helper function untuk format text jenis
+            const formatJenis = (jenis) => {
+                switch(jenis) {
+                    case 'proker':
+                        return 'Program Kerja';
+                    case 'agenda':
+                        return 'Agenda';
+                    default:
+                        return jenis;
+                }
+            };
+    
             const row = `
                 <tr>
                     <td>${index + 1}</td>
@@ -36,6 +60,11 @@ $(document).ready(function () {
                     <td>
                         <span class="badge badge-${item.status === 'active' ? 'success' : 'danger'}">
                             ${item.status}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge ${getBadgeClass(item.jenis)}">
+                            ${formatJenis(item.jenis)}
                         </span>
                     </td>
                     <td>
@@ -86,12 +115,12 @@ $(document).ready(function () {
         return `${hours}:${minutes}`;
     }
 
-    // Reset form
     function resetForm() {
         $('#form-timeline')[0].reset();
         $('#id_timeline').val('');
         $('#preview-image').empty();
         $('#status').prop('checked', true);
+        $('#jenis').val(''); // Reset ke pilihan default
     }
 
     // Add button click
@@ -101,7 +130,8 @@ $(document).ready(function () {
         $('#modal-form').modal('show');
     });
 
-    // Edit button click
+   
+  // Edit button click
     $(document).on('click', '.edit-btn', function() {
         const id = $(this).data('id');
         $.ajax({
@@ -109,6 +139,7 @@ $(document).ready(function () {
             method: 'GET',
             dataType: 'json',
             success: function(data) {
+                console.log('Data dari server:', data); // Debug
                 $('#id_timeline').val(data.id_timeline);
                 $('#judul_kegiatan').val(data.judul_kegiatan);
                 $('#deskripsi').val(data.deskripsi);
@@ -116,13 +147,15 @@ $(document).ready(function () {
                 $('#waktu_mulai').val(data.waktu_mulai);
                 $('#waktu_selesai').val(data.waktu_selesai);
                 $('#status').prop('checked', data.status === 'active');
+                $('#jenis').val(data.jenis);
+                console.log('Nilai jenis yang diset:', data.jenis); // Debug
                 
                 if (data.image_path) {
                     $('#preview-image').html(`
                         <img src="/frontend/public/assets/${data.image_path}" 
-                             width="200" 
-                             class="img-thumbnail" 
-                             alt="Preview">
+                            width="200" 
+                            class="img-thumbnail" 
+                            alt="Preview">
                     `);
                 }
                 
@@ -141,6 +174,9 @@ $(document).ready(function () {
         e.preventDefault();
         const formData = new FormData(this);
         formData.append('id_ukm', id_ukm);
+
+        // Debug untuk melihat nilai yang dikirim
+        console.log('Jenis yang dipilih:', formData.get('jenis'));
 
         $.ajax({
             url: '/backend/controllers/admin-ukm/timeline.php',
@@ -173,45 +209,50 @@ $(document).ready(function () {
 
     // Delete button click
     $(document).on('click', '.delete-btn', function() {
-        const id = $(this).data('id');
+        const id_timeline = $(this).data('id');
         
         Swal.fire({
             title: 'Apakah Anda yakin?',
-            text: "Data timeline akan dihapus permanen!",
+            text: "Data timeline akan dihapus beserta data panitia dan rapat terkait!",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
             confirmButtonText: 'Ya, hapus!',
             cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
-                $.ajax({
-                    url: `/backend/controllers/admin-ukm/timeline.php?id_timeline=${id}`,
-                    method: 'DELETE',
-                    success: function(response) {
-                        if (response.status === 'success') {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Terhapus!',
-                                text: 'Data timeline berhasil dihapus',
-                                showConfirmButton: false,
-                                timer: 1500
-                            }).then(() => {
-                                loadTimeline();
-                            });
-                        } else {
-                            Swal.fire('Error!', response.message, 'error');
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('AJAX Error:', xhr.responseText);
-                        Swal.fire('Error!', 'Gagal menghapus data timeline', 'error');
-                    }
-                });
+                deleteTimeline(id_timeline);
             }
         });
     });
+
+    // Function untuk menghapus timeline
+    function deleteTimeline(id_timeline) {
+        $.ajax({
+            url: `/backend/controllers/admin-ukm/timeline.php?id_timeline=${id_timeline}`,
+            method: 'DELETE',
+            success: function(response) {
+                if(response.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Terhapus!',
+                        text: 'Data timeline berhasil dihapus',
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        loadTimeline(); // Reload tabel timeline
+                    });
+                } else {
+                    Swal.fire('Error!', response.message || 'Gagal menghapus data', 'error');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('AJAX Error:', xhr.responseText);
+                Swal.fire('Error!', 'Gagal menghapus data timeline', 'error');
+            }
+        });
+    }
 
     // Preview image
     $('#image').on('change', function() {

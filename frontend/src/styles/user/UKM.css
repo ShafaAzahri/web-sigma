@@ -73,6 +73,41 @@ h2 {
     line-height: 1.5;  
 }
 
+.no-ukm-horizontal {
+    display: flex; /* Tata letak horizontal */
+    flex-direction: row; /* Elemen berjajar horizontal */
+    align-items: center; /* Vertikal rata tengah */
+    justify-content: space-between; /* Spasi antara elemen */
+    padding: 20px;
+    margin: 20px auto;
+    background-color: #f4f4f4; /* Warna latar belakang */
+    border: 1px solid #ddd; /* Border sederhana */
+    border-radius: 10px; /* Sudut melengkung */
+    max-width: 100%; /* Lebar penuh */
+    box-sizing: border-box; /* Pastikan padding tidak melebihi container */
+    font-size: 18px; /* Ukuran teks */
+    color: #333; /* Warna teks */
+    line-height: 1.8; /* Jarak antar baris */
+}
+
+.no-ukm-horizontal img {
+    max-width: 150px; /* Ukuran gambar */
+    margin-right: 20px; /* Jarak gambar dengan teks */
+}
+
+.no-ukm-content {
+    flex: 1; /* Isi area yang tersedia */
+    text-align: left; /* Rata kiri untuk teks */
+}
+.no-ukm-message {
+    font-size: 20px; /* Teks lebih besar untuk fokus */
+    color: #555; /* Warna teks lembut */
+    margin-bottom: 20px; /* Jarak bawah teks utama */
+}
+
+
+
+
 @media (max-width: 600px) {
     .ukm-card {
         padding: 20px;

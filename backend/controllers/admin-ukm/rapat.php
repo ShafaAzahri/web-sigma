@@ -32,7 +32,7 @@ function uploadNotulensi($file) {
     }
     
     $file_extension = strtolower(pathinfo($file["name"], PATHINFO_EXTENSION));
-    $new_filename = "notulensi-" . uniqid() . "." . $file_extension;
+    $new_filename = "shafa-" . uniqid() . "." . $file_extension;
     $target_file = $target_dir . $new_filename;
 
     // Cek ukuran file (max 5MB)
@@ -46,7 +46,7 @@ function uploadNotulensi($file) {
     }
 
     if (move_uploaded_file($file["tmp_name"], $target_file)) {
-        return ['status' => true, 'filename' => 'notulensi/' . $new_filename];
+        return ['status' => true, 'filename' => $new_filename];
     }
     return ['status' => false, 'message' => 'Gagal upload file'];
 }
@@ -75,17 +75,24 @@ function uploadDokumentasi($file) {
     }
 
     if (move_uploaded_file($file["tmp_name"], $target_file)) {
-        return ['status' => true, 'filename' => 'dokumentasi/' . $new_filename];
+        return ['status' => true, 'filename' => $new_filename];
     }
     return ['status' => false, 'message' => 'Gagal upload file'];
 }
 
 // Fungsi untuk hapus file
-function deleteFile($filepath) {
-    $full_path = "../../../frontend/public/assets/" . $filepath;
+function deleteFile($filepath, $type) {
+    $base_path = "../../../frontend/public/assets/";
+    
+    // Tentukan folder berdasarkan tipe
+    $folder = $type === 'notulensi' ? 'notulensi/' : 'dokumentasi/';
+    
+    $full_path = $base_path . $folder . $filepath;
+    
     if (file_exists($full_path)) {
-        unlink($full_path);
+        return unlink($full_path);
     }
+    return false;
 }
 
 // Handle GET request
@@ -193,7 +200,7 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 // Delete old file if exists
                 if ($old_data['notulensi_path']) {
-                    deleteFile($old_data['notulensi_path']);
+                    deleteFile($old_data['notulensi_path'], 'notulensi');
                 }
                 
                 $query .= ", notulensi_path = ?";
@@ -284,35 +291,46 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
             throw new Exception('Data rapat tidak ditemukan');
         }
 
-        // Get all dokumentasi paths
+        // Get all dokumentasi paths before deleting
         $query = "SELECT foto_path FROM dokumentasi_rapat WHERE id_rapat = ?";
         $stmt = $pdo->prepare($query);
         $stmt->execute([$id_rapat]);
         $dokumentasi = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Delete dokumentasi records
+        // Delete physical files first
+        $deleteErrors = [];
+        
+        // Delete notulensi file if exists
+        if ($rapat['notulensi_path']) {
+            if (!deleteFile($rapat['notulensi_path'], 'notulensi')) {
+                $deleteErrors[] = "Gagal menghapus file notulensi";
+            }
+        }
+
+        // Delete all dokumentasi files
+        foreach ($dokumentasi as $dok) {
+            if ($dok['foto_path'] && !deleteFile($dok['foto_path'], 'dokumentasi')) {
+                $deleteErrors[] = "Gagal menghapus file dokumentasi: " . $dok['foto_path'];
+            }
+        }
+
+        // Delete database records
         $query = "DELETE FROM dokumentasi_rapat WHERE id_rapat = ?";
         $stmt = $pdo->prepare($query);
         $stmt->execute([$id_rapat]);
 
-        // Delete rapat record
         $query = "DELETE FROM rapat WHERE id_rapat = ?";
         $stmt = $pdo->prepare($query);
         $stmt->execute([$id_rapat]);
 
-        // Delete physical files
-        if ($rapat['notulensi_path']) {
-            deleteFile($rapat['notulensi_path']);
-        }
-
-        foreach ($dokumentasi as $dok) {
-            if ($dok['foto_path']) {
-                deleteFile($dok['foto_path']);
-            }
-        }
-
         $pdo->commit();
-        jsonResponse('success', 'Rapat berhasil dihapus');
+
+        // If there were any file deletion errors, include them in the response
+        if (!empty($deleteErrors)) {
+            jsonResponse('warning', 'Rapat berhasil dihapus dari database, tetapi beberapa file tidak dapat dihapus: ' . implode(', ', $deleteErrors));
+        } else {
+            jsonResponse('success', 'Rapat dan semua file terkait berhasil dihapus');
+        }
 
     } catch (Exception $e) {
         if ($pdo->inTransaction()) {

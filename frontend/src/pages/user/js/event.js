@@ -16,7 +16,8 @@ const formatTime = (timeString) => {
 // Main Functions
 async function fetchEvents() {
     try {
-        const response = await fetch(`${API_URL}?limit=4&status=active`);
+        // Modified to get latest events only
+        const response = await fetch(`${API_URL}?order=latest&limit=4`);
         if (!response.ok) throw new Error('Network response was not ok');
         
         const result = await response.json();
@@ -32,7 +33,6 @@ async function fetchEvents() {
         }
     } catch (error) {
         console.error('Error fetching events:', error);
-        // Menampilkan pesan error ke user (opsional)
         const eventContainer = document.querySelector('.event-container');
         if (eventContainer) {
             eventContainer.innerHTML = `
@@ -47,10 +47,8 @@ function renderEvents(events) {
     const eventContainer = document.querySelector('.event-container');
     if (!eventContainer) return;
 
-    // Keep the title
-    eventContainer.innerHTML = '<h2>EVENT</h2>';
+    eventContainer.innerHTML = '';
 
-    // Jika tidak ada events, tampilkan pesan
     if (events.length === 0) {
         const noEventMessage = document.createElement('p');
         noEventMessage.className = 'no-events-message';
@@ -64,6 +62,8 @@ function renderEvents(events) {
         const eventCard = createEventCard(event, isLeft);
         eventContainer.appendChild(eventCard);
     });
+
+    setupCardAnimations();
 }
 
 function createEventCard(event, isLeft) {
@@ -72,15 +72,24 @@ function createEventCard(event, isLeft) {
 
     const imagePath = event.image_path 
         ? `/frontend/public/assets/${event.image_path}`
-        : '/frontend/public/assets/event.webp'; // default image
+        : '/frontend/public/assets/event.webp';
 
-    // Mengambil 4 karakter pertama untuk highlight jika judul lebih dari 4 karakter
-    const highlightText = event.judul_kegiatan.substring(0, 4);
-    const remainingText = event.judul_kegiatan.substring(4);
+    const words = event.judul_kegiatan.split(' ');
+    let titleHTML;
+    
+    if (words.length >= 2) {
+        const firstWord = words[0];
+        const restWords = words.slice(1).join(' ');
+        titleHTML = `<span class="highlight">${firstWord}</span>${restWords}`;
+    } else {
+        const highlightText = event.judul_kegiatan.substring(0, 4);
+        const remainingText = event.judul_kegiatan.substring(4);
+        titleHTML = `<span class="highlight">${highlightText}</span>${remainingText}`;
+    }
 
     const content = isLeft ? `
         <div class="event-info">
-            <h3><span class="highlight">${highlightText}</span>${remainingText}</h3>
+            <h3>${titleHTML}</h3>
             <p>${event.deskripsi}</p>
             <div class="period">
                 <span class="period-label">PERIOD</span>
@@ -99,7 +108,7 @@ function createEventCard(event, isLeft) {
             <img src="${imagePath}" alt="${event.judul_kegiatan}" onerror="this.src='/frontend/public/assets/event.webp'">
         </div>
         <div class="event-info">
-            <h3><span class="highlight">${highlightText}</span>${remainingText}</h3>
+            <h3>${titleHTML}</h3>
             <p>${event.deskripsi}</p>
             <div class="period">
                 <span class="period-label">PERIOD</span>
@@ -116,5 +125,64 @@ function createEventCard(event, isLeft) {
     return div;
 }
 
-// Initialize
-document.addEventListener('DOMContentLoaded', fetchEvents);
+// Animation Setup
+document.addEventListener('DOMContentLoaded', () => {
+    const titleObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('slide-in');
+                titleObserver.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.1
+    });
+
+    const eventTitle = document.querySelector('.event-title');
+    if (eventTitle) {
+        titleObserver.observe(eventTitle);
+    }
+
+    fetchEvents();
+});
+
+function setupCardAnimations() {
+    const cardObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('fade-in');
+                cardObserver.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.1
+    });
+
+    document.querySelectorAll('.event-card').forEach(card => {
+        cardObserver.observe(card);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const navbar = document.querySelector(".navbar");
+    const hamburger = document.querySelector(".hamburger");
+    const navMenu = document.querySelector(".nav-menu");
+
+    window.addEventListener("scroll", () => {
+        if (window.scrollY > 50) {
+            navbar.classList.add("scrolled");
+        } else {
+            navbar.classList.remove("scrolled");
+        }
+    });
+
+    hamburger.addEventListener("click", () => {
+        hamburger.classList.toggle("active");
+        navMenu.classList.toggle("active");
+    });
+
+    document.querySelectorAll(".nav-link").forEach(n => n.addEventListener("click", () => {
+        hamburger.classList.remove("active");
+        navMenu.classList.remove("active");
+    }));
+});

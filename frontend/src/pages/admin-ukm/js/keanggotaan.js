@@ -1,8 +1,7 @@
-// keanggotaan.js
 $(document).ready(function () {
     loadAnggota();
     loadPeriodeDropdown();
- 
+
     // Function untuk load data anggota
     function loadAnggota() {
         $.ajax({
@@ -21,7 +20,7 @@ $(document).ready(function () {
             }
         });
     }
- 
+
     // Populate table dengan data
     function populateTable(data) {
         const tbody = $('#table-anggota tbody');
@@ -39,7 +38,6 @@ $(document).ready(function () {
                         </span>
                     </td>
                     <td>${item.periode || 'N/A'}</td>
-                    <td>${formatDate(item.tanggal_bergabung)}</td>
                     <td>
                         <button class="btn btn-primary btn-sm edit-btn" data-id="${item.id_keanggotaan}">
                             <i class="fas fa-edit"></i> Edit
@@ -53,7 +51,7 @@ $(document).ready(function () {
             tbody.append(row);
         });
     }
- 
+
     // Load periode untuk dropdown
     function loadPeriodeDropdown() {
         $.ajax({
@@ -72,8 +70,8 @@ $(document).ready(function () {
             }
         });
     }
- 
-    // Load mahasiswa untuk dropdown (yang belum jadi anggota)
+
+    // Load mahasiswa untuk dropdown (yang sudah acc_tahap3)
     function loadMahasiswaDropdown() {
         $.ajax({
             url: '/backend/controllers/admin-ukm/keanggotaan.php?action=get_mahasiswa',
@@ -91,7 +89,7 @@ $(document).ready(function () {
             }
         });
     }
- 
+
     // Handle filter status
     $('#filter-status').on('change', function() {
         const status = $(this).val();
@@ -99,7 +97,7 @@ $(document).ready(function () {
         const search = $('#search-box').val();
         filterData(status, periode, search);
     });
- 
+
     // Handle filter periode
     $('#filter-periode').on('change', function() {
         const status = $('#filter-status').val();
@@ -107,7 +105,7 @@ $(document).ready(function () {
         const search = $('#search-box').val();
         filterData(status, periode, search);
     });
- 
+
     // Handle search
     $('#search-box').on('keyup', function() {
         const status = $('#filter-status').val();
@@ -115,7 +113,7 @@ $(document).ready(function () {
         const search = $(this).val();
         filterData(status, periode, search);
     });
- 
+
     // Function untuk filter data
     function filterData(status, periode, search) {
         $.ajax({
@@ -134,14 +132,14 @@ $(document).ready(function () {
             }
         });
     }
- 
+
     // Add button click
     $('#add-btn').on('click', function() {
         resetForm();
         loadMahasiswaDropdown();
         $('#modal-title').text('Tambah Anggota');
     });
- 
+
     // Edit button click
     $(document).on('click', '.edit-btn', function() {
         const id = $(this).data('id');
@@ -155,21 +153,20 @@ $(document).ready(function () {
                     $('#id_keanggotaan').val(data.id_keanggotaan);
                     $('#status').val(data.status);
                     $('#id_periode').val(data.id_periode);
-                    $('#tanggal_bergabung').val(data.tanggal_bergabung);
- 
+
                     // Set NIM dengan data yang sedang diedit
                     const select = $('#nim');
                     select.empty();
                     select.append(`<option value="${data.nim}">${data.nim} - ${data.nama_lengkap}</option>`);
                     select.prop('disabled', true);
- 
+
                     $('#modal-title').text('Edit Anggota');
                     $('#modal-form').modal('show');
                 }
             }
         });
     });
- 
+
     // Form submit
     $('#form-keanggotaan').on('submit', function(e) {
         e.preventDefault();
@@ -183,7 +180,6 @@ $(document).ready(function () {
             processData: false,
             contentType: false,
             success: function(response) {
-                // Handle string response
                 let result = response;
                 if (typeof response === 'string') {
                     try {
@@ -214,10 +210,8 @@ $(document).ready(function () {
                 }
             },
             error: function(xhr, status, error) {
-                // Log full error response
                 console.error('Full error response:', xhr.responseText);
                 
-                // Try to parse error message if it's in JSON format
                 let errorMessage = 'Gagal menyimpan data';
                 try {
                     const errorResponse = JSON.parse(xhr.responseText);
@@ -236,7 +230,7 @@ $(document).ready(function () {
             }
         });
     });
- 
+
     // Delete button click
     $(document).on('click', '.delete-btn', function() {
         const id = $(this).data('id');
@@ -273,22 +267,11 @@ $(document).ready(function () {
             }
         });
     });
- 
+
     // Reset form
     function resetForm() {
         $('#form-keanggotaan')[0].reset();
         $('#id_keanggotaan').val('');
         $('#nim').prop('disabled', false);
     }
- 
-    // Helper function untuk format tanggal
-    function formatDate(dateString) {
-        if (!dateString) return 'N/A';
-        const date = new Date(dateString);
-        return new Intl.DateTimeFormat('id-ID', {
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric'
-        }).format(date);
-    }
- });
+});

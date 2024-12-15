@@ -232,13 +232,14 @@ $(function () {
   // Handle view dokumentasi
   $('#table-rapat').on('click', '.view-dokumentasi', function() {
     let id = $(this).data('id');
-    $.get(/backend/controllers/admin_ukm/rapat/get_dokumentasi.php?id=${id}, function(response) {
+    $.get(`/backend/controllers/admin_ukm/rapat/get_dokumentasi.php?id=${id}`, function(response) {
       if(response.status === 'success') {
         let gallery = '';
         response.data.forEach(function(item) {
           gallery += `
             <div class="col-md-4 mb-3">
-              <img src="/uploads/dokumentasi_rapat/${item.foto_path}" class="img-fluid">
+              <img src="
+              ${item.foto_path}" class="img-fluid">
             </div>
           `;
         });
@@ -300,7 +301,7 @@ $(function () {
     let id = $(this).data('id');
     $('#modal-title').text('Edit Rapat');
     
-    $.get(/backend/controllers/admin_ukm/rapat/get_single.php?id=${id}, function(response) {
+    $.get(`/backend/controllers/admin_ukm/rapat/get_single.php?id=${id}`, function(response) {
       $('#id_rapat').val(response.data.id_rapat);
       $('#judul').val(response.data.judul);
       $('#tanggal').val(response.data.tanggal);

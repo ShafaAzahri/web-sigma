@@ -1,21 +1,18 @@
-// Save this as sidebar.js
 const SidebarManager = {
-    // Function to initialize sidebar
     init: function() {
         this.loadSidebar();
         this.setActiveMenu();
+        this.initMenuHandlers();
     },
 
-    // Function to load sidebar content
     loadSidebar: function() {
-        // Load sidebar template using fetch
         fetch('/frontend/src/pages/admin-ukm/js/sidebar.html')
             .then(response => response.text())
             .then(html => {
-                // Insert the sidebar HTML into the page
                 document.querySelector('#sidebar-container').innerHTML = html;
+                this.initMenuHandlers();
+                this.setActiveMenu();
                 
-                // Initialize AdminLTE sidebar functionality after loading
                 if ($.fn.overlayScrollbars) {
                     $('.nav-sidebar').overlayScrollbars({
                         className: 'os-theme-light',
@@ -30,29 +27,72 @@ const SidebarManager = {
             .catch(error => console.error('Error loading sidebar:', error));
     },
 
-    // Function to set active menu based on current page
+    initMenuHandlers: function() {
+        // Clear any existing event handlers
+        $(document).off('click', '.nav-item.has-treeview > .nav-link');
+        $(document).off('click', '.nav-treeview .nav-link');
+
+        // Handle dropdown menu clicks
+        $(document).on('click', '.nav-item.has-treeview > .nav-link', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const $menuItem = $(this).parent('.nav-item.has-treeview');
+            const $subMenu = $menuItem.children('.nav-treeview');
+            
+            // Close other open menus
+            $('.nav-item.has-treeview').not($menuItem).removeClass('menu-open')
+                .children('.nav-treeview').slideUp('fast');
+            
+            // Toggle current menu
+            $menuItem.toggleClass('menu-open');
+            
+            if ($menuItem.hasClass('menu-open')) {
+                $subMenu.slideDown('fast');
+            } else {
+                $subMenu.slideUp('fast');
+            }
+        });
+
+        // Handle submenu item clicks
+        $(document).on('click', '.nav-treeview .nav-link', function(e) {
+            $('.nav-treeview .nav-link').removeClass('active');
+            $(this).addClass('active');
+            
+            // Keep parent menu open
+            const $parentMenu = $(this).closest('.nav-item.has-treeview');
+            $parentMenu.addClass('menu-open');
+            $parentMenu.children('.nav-link').addClass('active');
+        });
+    },
+
     setActiveMenu: function() {
-        // Get current page URL
         const currentPage = window.location.pathname.split('/').pop();
         
-        // Remove any existing active classes
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.classList.remove('active');
-        });
+        // Reset all active states
+        $('.nav-link').removeClass('active');
+        $('.nav-item.has-treeview').removeClass('menu-open');
+        $('.nav-treeview').hide();
         
-        // Add active class to current page's menu item
-        const activeLink = document.querySelector(`.nav-link[href="${currentPage}"]`);
-        if (activeLink) {
-            activeLink.classList.add('active');
+        // Find and activate current menu item
+        const $activeLink = $(`a[href="${currentPage}"]`);
+        if ($activeLink.length) {
+            $activeLink.addClass('active');
+            
+            // If it's a submenu item
+            if ($activeLink.closest('.nav-treeview').length) {
+                const $parentMenu = $activeLink.closest('.nav-item.has-treeview');
+                $parentMenu.addClass('menu-open');
+                $parentMenu.children('.nav-link').addClass('active');
+                $activeLink.closest('.nav-treeview').show();
+            }
         }
     },
 
-    // Function to toggle sidebar mini
     toggleSidebarMini: function() {
         document.body.classList.toggle('sidebar-mini');
     },
 
-    // Logout function
     logout: function() {
         $.ajax({
             url: '/backend/controllers/logout.php',
@@ -67,5 +107,21 @@ const SidebarManager = {
     }
 };
 
-// Export for use in other files
+// Add necessary styles
+const style = document.createElement('style');
+style.textContent = `
+    .nav-treeview {
+        display: none;
+    }
+    
+    .menu-open > .nav-treeview {
+        display: block;
+    }
+    
+    .nav-item.has-treeview > .nav-link {
+        cursor: pointer;
+    }
+`;
+document.head.appendChild(style);
+
 export default SidebarManager;

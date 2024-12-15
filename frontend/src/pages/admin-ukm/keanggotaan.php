@@ -91,7 +91,6 @@ if (!isset($_SESSION['id_ukm'])) {
                                                 <th>Program Studi</th>
                                                 <th>Status</th>
                                                 <th>Periode</th>
-                                                <th>Tanggal Bergabung</th>
                                                 <th>Aksi</th>
                                             </tr>
                                         </thead>
@@ -139,11 +138,7 @@ if (!isset($_SESSION['id_ukm'])) {
                                 <select class="form-control" id="id_periode" name="id_periode" required>
                                     <option value="">Pilih Periode</option>
                                 </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Tanggal Bergabung</label>
-                                <input type="date" class="form-control" id="tanggal_bergabung" name="tanggal_bergabung" required>
-                            </div>
+                            </div>  
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>

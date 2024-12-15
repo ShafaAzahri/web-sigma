@@ -52,9 +52,6 @@ body {
     background-color: #1a237e; /* Warna biru untuk tahap aktif */
 }
 
-.step:first-child {
-    background-color: #1a237e;
-}
 
 .step-label {
     position: absolute;
