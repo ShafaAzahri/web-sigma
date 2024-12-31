@@ -22,7 +22,7 @@ function initializeEditProfile() {
     const closeBtn = document.querySelector('.close-btn');
     const form = document.getElementById('editProfileForm');
     const imagePreview = document.getElementById('imagePreview');
-    const fileInput = document.getElementById('profilePicture');
+    const fileInput = document.getElementById('profile_picture');
     const tabButtons = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
     const passwordForm = document.getElementById('changePasswordForm');
@@ -152,7 +152,7 @@ function initializeEditProfile() {
         const formData = new FormData(form);
         
         // Debug untuk memastikan foto ada dalam FormData
-        const fileInput = document.getElementById('profilePicture');
+        const fileInput = document.getElementById('profile_picture');
         if (fileInput.files[0]) {
             console.log('File selected:', fileInput.files[0]);
         }
